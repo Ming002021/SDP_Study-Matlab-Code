@@ -1,0 +1,45 @@
+% We want to write a function solving the single Source-Sink shortest paths problem
+
+% the input is a connected undirected graph A, the source node s, and the sink node t
+
+function results=Single_ShortestPath_directed(A,s,t)
+
+    % Transform A to be a symmetric matrix
+    A = A + A';
+
+    % Get the number of nodes
+    n = size(A, 1);
+
+    % Define the binary two-dimensional IP decision variable x_{ij}^h, i,j=1..n
+    x = binvar(n, n,'full');
+
+    % Objective function: Minimize the total number of arcs visited in the
+    % path
+  
+    obj = sum(x(:));
+
+    % Constraints
+    constraints = [];
+
+    % Constraint 1: x_{ij} = 0 if no arc (i,j) exists
+    constraints = [constraints, x(:,:) <= A];
+
+    % Constraint 2: Exactly one arc leaving source node s
+    constraints = [constraints, sum(x(s,:)) - sum(x(:,s)) == 1];
+
+    % Constraint 3: Exactly one arc entering source node s
+    constraints = [constraints, sum(x(s,:)) - sum(x(:,s)) == 1];
+
+
+
+
+
+
+
+
+
+
+
+
+
+end

@@ -1,0 +1,67 @@
+% We want to write a function solving Pairwise Source-Sink vertex-disjoint paths problem
+
+% the input is a connected undirected graph A, and the number of paths we
+% want to construct k, the source nodes s, and the sink nodes t
+
+function results= VLSI_routing_directed_IP(A,k,s,t) 
+
+    % Transform A become a sysmetric matrix so that [A]_{ij}=0 means no acr (i,j)
+    A = A + A';
+    
+    % Get the number of nodes
+    n=size(A,1);
+    
+    N=1:n;
+    % Get the nodes that are not sourse node and sink nodes
+    
+    N_st=setdiff(setdiff(N, s), t);
+    
+    % Define the three dimensional IP decidion variable x_{ij}^h, i,j=1..n
+    x = sdpvar(n, n, k);
+    % Objective function: Minimize the total number of arcs visited in all paths
+    obj = sum(x);
+    % Constraints:
+    
+    constraints = [];
+    for h = 1:k
+        % 1.x_{ij}^h=0, if no arc (i,j) exsits, for all h
+    
+        % Create a logical mask where A is equal to 0
+        mask = A == 0;
+        
+        % Set the corresponding elements of x to 0 using logical indexing
+        x(mask, h) = 0;
+        
+        % Add the constraints to the list
+        constraints = [constraints, x(:, :, h) == x(:, :, h)]; % just a placeholder constraint to keep the syntax consistent
+    
+        % 2. Source nodes s1,··· ,sk : exactly one arc leaving si, for all i
+    
+        constraints = [constraints, sum(x(s(h),:,h))-sum(x(:,s(h),h)) == 1]; 
+    
+        % 3. Sink nodes t1,··· ,tk : exactly one arc entering si, for all i
+    
+        constraints = [constraints, sum(x(t(h),:,h))-sum(x(:,t(h),h)) == -1];
+    
+    end
+    
+     % Vertex disjoint
+    
+    for i = N_st
+        constraints = [constraints, sum(sum(x(i, :, :))) <= 1, sum(sum(x(:, i, :))) <= 1];
+    end
+    
+    % Solve the optimization problem
+    options = sdpsettings('solver', 'gurobi'); % Use solver gurobi
+    optimize(constraints, obj, options);
+    
+    results= value(obj);
+  
+end
+
+ 
+
+
+
+
+ 
