@@ -97,7 +97,7 @@ function [optimal_path, num_edges_visited]=Single_ShortestPath_undirectedLP(A,s,
     % Get the nodes that are not source nodes and sink nodes
     N_st = setdiff(setdiff(1:n, s), t);
 
-    % Define the binary two-dimensional IP decision variable x_{ij}, i,j=1,...n
+    % Define the LP two-dimensional IP decision variable x_{ij}, i,j=1,...n
     x = sdpvar(n, n,'full');
 
     % Define the binary one-dimensional IP decision variable y_j,j=1,2,...n
